@@ -149,6 +149,6 @@ vvk@bubuntu:~$ microk8s kubectl port-forward -n kube-system service/kubernetes-d
 Forwarding from 0.0.0.0:10443 -> 8443
 ```
 
-![Dashboard](https://github.com/Bambrino/micro/tree/main/12.1/kubedash.png)
+![Dashboard](./kubedash.png)
 
 
