@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: myapp
+  name: myapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      containers:
+      - name: multitool
+        image: wbitt/network-multitool
+        volumeMounts: 
+          - name: shara
+            mountPath: /tmp/shara
+
+      - name: busybox
+        image: busybox
+        volumeMounts:
+          - name: shara
+            mountPath: /tmp/shara
+        command: ['sh', '-c', 'while true; do date +%X >> /tmp/shara/output.txt; sleep 5; done']
+      
+      volumes:
+        - name: shara
+          emptyDir: {}
+
+
+---
+
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: daemon
+  labels:
+    app: daemon
+spec:
+  selector:
+    matchLabels:
+      app: daemon
+  template:
+    metadata:
+      labels:
+        app: daemon
+    spec:
+      containers:
+      - name: daemon-multi
+        image: wbitt/network-multitool
+        volumeMounts:
+        - name: node-logs
+          mountPath: /node-logs/syslog
+          subPath: syslog
+      volumes:
+      - name: node-logs
+        hostPath:
+          path: /var/log/
