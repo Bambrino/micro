@@ -329,6 +329,68 @@ pod/csi-nfs-controller-8599647cb4-qdmrl condition met
 
 - ###### Пробуем применить deployment со storageclass и pvc:
 
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: myapp
+  name: myapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      containers:          
+      - name: multitool
+        image: wbitt/network-multitool  
+        # ports:
+        # - containerPort: 80
+        #   name: multi-port
+        volumeMounts: 
+          - name: mynfs
+            mountPath: /srv/nfs
+      volumes:
+        - name: mynfs
+          persistentVolumeClaim:
+            claimName: nfsclaim
+
+---
+
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: mynfsclass
+provisioner: nfs.csi.k8s.io
+parameters:
+  server: 172.16.101.11
+  share: /srv/nfs
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
+mountOptions:
+  - hard
+  - nfsvers=4.1
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nfsclaim
+spec:
+  storageClassName: mynfsclass
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+```
+
 ```shell
 microk8s.kubectl apply -f ./Deploymet2.yml 
 deployment.apps/myapp created
