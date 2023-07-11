@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: myapp
+  name: myapp
+spec:
+  replicas: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      containers:          
+      - name: nginx
+        image: nginx:1.28
+        ports:
+        - containerPort: 80
+          name: nginx-port
+      
+      - name: multitool
+        image: wbitt/network-multitool  
+        env:
+        - name: HTTP_PORT
+          value: "8081"   
+        ports:
+        - containerPort: 8081
+          name: multi-http-port
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: myapp
+spec:
+  selector:
+    app: myapp
+  ports:
+    - name: http
+      port: 80
+      protocol: TCP
+
+    - name: http-multi
+      port: 8081
+      protocol: TCP
