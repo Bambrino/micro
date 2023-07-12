@@ -49,8 +49,8 @@ spec:
   strategy:
     type: RollingUpdate
     rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 1
+      maxSurge: 4
+      maxUnavailable: 4
   selector:
     matchLabels:
       app: myapp
